@@ -1,0 +1,8 @@
+{
+    "hostName": "localhost",
+    "port": 8080,
+    "useCurrentTime": "yes",
+    "csvFilePath": "data/MZVAV-2-1.csv",
+    "interval": 2,
+    "debugMode": true
+}
