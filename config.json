@@ -1,8 +1,10 @@
 {
     "hostName": "localhost",
     "port": 8080,
+    "serverMode": "flask",
     "useCurrentTime": "yes",
     "csvFilePath": "data/MZVAV-2-1.csv",
+    "postMode": "perCallBased",
     "interval": 2,
     "debugMode": true
 }
