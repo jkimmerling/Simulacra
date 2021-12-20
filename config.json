@@ -7,5 +7,7 @@
     "filePaths": ["data/MZVAV-2-1.csv", "data/MZVAV-2-2.csv"],
     "postMode": "intervalBased",
     "interval": 2,
-    "debugMode": true
+    "debugMode": true,
+    "numberOfDevices": 50000,
+    "numberOfNetworks": 1
 }

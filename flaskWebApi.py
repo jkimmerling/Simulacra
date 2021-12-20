@@ -1,5 +1,6 @@
 import csv
 import json
+import os, psutil
 from datetime import datetime, timedelta
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
@@ -49,7 +50,7 @@ class BaseTime(Resource):
             remainder = intTimeDeltaM % self.config['interval']
             self.offset = intTimeDeltaM - remainder
         if self.config['debugMode'] == True:
-            self.debugDict['offset'] = offset        
+            self.debugDict['offset'] = self.offset        
 
     def formatTime(self):        
         for i in range(len(self.dataBlob)):
@@ -63,7 +64,8 @@ class BaseTime(Resource):
         self.getPublishTime()        
         self.getOffset()
         self.formatTime()
-        response = dh.getSpecificRows(self.dataBlob, self.offset)
+        response = dh.getSpecificRows(self.dataBlob, self.offset, self.config["numberOfDevices"])
         if self.config['debugMode'] == True:
+            self.debugDict['memoryUsage'] = psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
             response.append(self.debugDict)
         return response, 200
