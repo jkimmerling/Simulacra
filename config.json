@@ -3,8 +3,9 @@
     "port": 8080,
     "serverMode": "flask",
     "useCurrentTime": "yes",
-    "csvFilePath": "data/MZVAV-2-1.csv",
-    "postMode": "perCallBased",
+    "fileType": "csv",
+    "filePaths": ["data/MZVAV-2-1.csv", "data/MZVAV-2-2.csv"],
+    "postMode": "intervalBased",
     "interval": 2,
     "debugMode": true
 }
