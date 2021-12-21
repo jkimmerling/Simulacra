@@ -8,6 +8,6 @@
     "postMode": "intervalBased",
     "interval": 2,
     "debugMode": true,
-    "numberOfDevices": 50000,
+    "numberOfDevices": 5,
     "numberOfNetworks": 1
 }

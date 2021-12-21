@@ -21,8 +21,6 @@ def main():
             resource_class_kwargs={'mainConfig': config, 'dataBlob': dataBlob,
             'debugDict': debugDict, 'count': count})
         fWA.app.run(host=config['hostName'], port=config['port'])
-    else:
-        print("nope")
-
+    
 if __name__ == "__main__":
     main()
