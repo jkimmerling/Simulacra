@@ -1,6 +1,6 @@
 import json
 import pandas as pd
-import dataHandler as dh
+from handlers.dataHandler import dataHandler
 from datetime import datetime, timedelta
 
 
@@ -11,14 +11,15 @@ if config['debugMode']:
     debugDict = {}
     debugDict['config'] = config
 
-dataBlob = dh.getDataBlob(config['filePaths'])
+data = dataHandler(config)
+data.loadData()
 
 def main():    
     if config['serverMode'] == 'flask':
         count = 0
         import flaskWebApi as fWA                     
         fWA.api.add_resource(fWA.BaseTime, '/', 
-            resource_class_kwargs={'mainConfig': config, 'dataBlob': dataBlob,
+            resource_class_kwargs={'mainConfig': config, 'dataBlob': data,
             'debugDict': debugDict, 'count': count})
         fWA.app.run(host=config['hostName'], port=config['port'])
     

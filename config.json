@@ -4,10 +4,12 @@
     "serverMode": "flask",
     "useCurrentTime": "yes",
     "fileType": "csv",
-    "filePaths": ["data/MZVAV-2-1.csv", "data/MZVAV-2-2.csv"],
-    "postMode": "intervalBased",
+    "dataMode": "redis",
+    "filePaths": ["testCsv-1.csv", "testCsv-2.csv", "testCsv-3.csv"],
+    "postMode": "perCallBased",
     "interval": 2,
     "debugMode": true,
-    "numberOfDevices": 5,
-    "numberOfNetworks": 1
+    "numberOfDevices": 6,
+    "numberOfNetworks": 1,
+    "initRedis": true
 }

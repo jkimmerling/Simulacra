@@ -4,8 +4,8 @@ import os, psutil
 from datetime import datetime, timedelta
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
-import dataHandler as dh
-import timeHandler as th
+import handlers.dataHandler as dh
+import handlers.timeHandler as th
 
 # create the base flask app
 app = Flask(__name__)
@@ -21,9 +21,10 @@ class BaseTime(Resource):
         self.debugDict = debugDict       
         self.timeAtRun = datetime.now()          
     
-    def formatTime(self):        
-        for i in range(len(self.dataBlob)):
-            self.dataBlob[i]['Datetime'] = self.publishTime
+    def formatTime(self, rows):        
+        for i in range(len(rows)):
+            rows[i]['Datetime'] = self.publishTime
+        return rows
         
     def get(self):
         if self.config['postMode'] == 'perCallBased':
@@ -36,9 +37,8 @@ class BaseTime(Resource):
                 self.timeAtStart, self.timeAtRun, self.config['interval'])
         if len(offsetList) > 1:
             BaseTime.count += 1
-        self.formatTime()
-        response = dh.getSpecificRows(self.dataBlob, offsetList[0], 
-                self.config["numberOfDevices"])
+        response = self.dataBlob.fetchRows(offsetList[0])
+        response = self.formatTime(response)
         if self.config['debugMode'] == True:
             self.debugDict['offsetList'] = offsetList
             self.debugDict['memoryUsage'] = psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
