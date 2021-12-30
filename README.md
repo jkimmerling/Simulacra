@@ -1,8 +1,7 @@
 # SimulacrIoT
 HVAC and IoT Device Simulator
 
-This is meant to act as a simulator of a device/network of devices. Its primary uses cases are to test  
-either data pipelines or fault detection algorithms.
+This is meant to act as a simulator of a device/network of devices. Its primary uses cases are to test either data pipelines or fault detection algorithms.  
 
 # Current Features  
 * Loads the trend data from CSVs  
