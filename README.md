@@ -48,6 +48,10 @@ flaskHostName -
 flaskPort -   
 debugMode -   
 
+# How to run  
+
+python3 runner.py
+
  
 # Credits
 Credit for Dataset:  
