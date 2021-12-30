@@ -22,7 +22,7 @@ This is meant to act as a simulator of a device/network of devices. Its primary 
 * Ceate docker compose to have everything in one quickly deployable package
 
  
-
+# Credits
 Credit for Dataset:  
 The dataset used for this project: "Automated Fault Detection and Diagnostics Data Curation and Benchmarking"  
 The authors: Jessica Granderson and Guanjing Lin  
