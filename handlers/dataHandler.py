@@ -13,17 +13,18 @@ class dataHandler():
         self.lengthRow = []
         self.lengthDevices = []
         if self.config['dataMode'] == "redis":
-            self.redis = redis.Redis(host='localhost', port=6379, db=1, \
+            self.redis = redis.Redis(host=self.config['redisHost'], \
+                port=self.config['redisPort'], db=self.config['redisDB'], \
                 decode_responses=True)
 
-    def initRedis(self):
+    def redisInit(self):
         '''
         Checks the size of the DB. If the DB is empty it returns True. If the 
-        DB is not empty it checks initRedis. If initRedis is true it will 
+        DB is not empty it checks redisInit. If redisInit is true it will 
         flush the DB and return True, otherwise it returns False
         '''
         if self.redis.dbsize() > 0:
-            if self.config["initRedis"] == True:
+            if self.config["redisInit"] == True:
                 print("Flushing non-empty DB")
                 self.redis.flushdb()
                 return True
@@ -36,12 +37,12 @@ class dataHandler():
         
     def createRedisData(self): 
         '''
-        It Calls initRedis. If initRedis returns True it loads each of the 
+        It Calls redisInit. If redisInit returns True it loads each of the 
         flat files into the redis DB and stores the number of devices and 
         number of record per device into variables for later use. If
-        initRedis returns False it does nothing.
+        redisInit returns False it does nothing.
         '''  
-        if self.initRedis() == True:
+        if self.redisInit() == True:
             for n in range(len(self.config['filePaths'])):
                 count = 0
                 print(f"Starting to load " + self.config['filePaths'][n] + ".")
@@ -58,7 +59,7 @@ class dataHandler():
             self.lengthDevices = len(self.config['filePaths'])
             print(f"Number of devices loaded: {self.lengthDevices}")
         else:
-            print(f"DB was not empty, and initRedis is false, no new data \
+            print(f"DB was not empty, and redisInit is false, no new data \
                 loaded")
 
 

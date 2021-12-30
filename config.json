@@ -11,5 +11,8 @@
     "debugMode": true,
     "numberOfDevices": 6,
     "numberOfNetworks": 1,
-    "initRedis": true
+    "redisHost": "localhost",
+    "redisPort": 6379,
+    "redisDB": 1,
+    "redisInit": true
 }
