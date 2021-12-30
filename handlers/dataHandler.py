@@ -1,28 +1,39 @@
 import pandas as pd
 import redis
 import csv
+import sys
 
 class dataHandler():
     '''
-    Class to load/create/return the data
+    Class to load/create/return the data.
     '''
     def __init__(self, config):
-        self.offset = 0
         self.config = config
-        self.rows = []
         self.lengthRow = []
         self.lengthDevices = []
+        
+
+    def redisConnect(self):
+        '''
+        Connects to the Redis backend.
+        '''
         if self.config['dataMode'] == "redis":
-            self.redis = redis.Redis(host=self.config['redisHost'], \
-                port=self.config['redisPort'], db=self.config['redisDB'], \
-                decode_responses=True)
+            try:
+                self.redis = redis.Redis(host=self.config['redisHost'], \
+                    port=self.config['redisPort'], db=self.config['redisDB'], \
+                    decode_responses=True)
+                self.redis.ping()                
+            except redis.ConnectionError:
+                print("Could not connect to Redis, please ensure it is running")
+                sys.exit("Terminating program")
 
     def redisInit(self):
         '''
         Checks the size of the DB. If the DB is empty it returns True. If the 
         DB is not empty it checks redisInit. If redisInit is true it will 
-        flush the DB and return True, otherwise it returns False
+        flush the DB and return True, otherwise it returns False.
         '''
+        self.redisConnect()
         if self.redis.dbsize() > 0:
             if self.config["redisInit"] == True:
                 print("Flushing non-empty DB")
@@ -33,9 +44,10 @@ class dataHandler():
                 return False
         else:
             return True
+        
             
         
-    def createRedisData(self): 
+    def redisCreateData(self): 
         '''
         It Calls redisInit. If redisInit returns True it loads each of the 
         flat files into the redis DB and stores the number of devices and 
@@ -46,13 +58,17 @@ class dataHandler():
             for n in range(len(self.config['filePaths'])):
                 count = 0
                 print(f"Starting to load " + self.config['filePaths'][n] + ".")
-                with open(self.config['filePaths'][n]) as f:                
-                    for row in csv.DictReader(f, skipinitialspace=True):
-                        data = {k:v for k, v in row.items()} 
-                        redisKeyName = "Device_" + str(n+1) + "_Reading_" + \
-                            str(count+1)       
-                        self.redis.hset(redisKeyName, mapping=data)
-                        count+=1
+                try:
+                    with open(self.config['filePaths'][n]) as f:                
+                        for row in csv.DictReader(f, skipinitialspace=True):
+                            data = {k:v for k, v in row.items()} 
+                            redisKeyName = "Device_" + str(n+1) + "_Reading_" \
+                                + str(count+1)       
+                            self.redis.hset(redisKeyName, mapping=data)
+                            count+=1                    
+                except:
+                    print(f"Failed to load {self.config['filePaths'][n]}.")
+                    sys.exit("Terminating program")
                 self.lengthRow.append(count)
                 print(f"Number of Rows loaded: {count}")
                 print(f"Finished Loading {self.config['filePaths'][n]}.")
@@ -63,7 +79,14 @@ class dataHandler():
                 loaded")
 
 
-    def getRedisSpecificRows(self):
+    def redisGetSpecificRows(self):
+        '''
+        Pulls specific rows for each "device" of data out of redis based on 
+        the offset variable. If the numberOfDevices is greater than the number 
+        of devices loaded into redis it will rotate and reuse the existing
+        devices. If the offset called for is longer than the device's stored
+        readings it will rotate back to the start of the readings.
+        '''
         if self.config['numberOfDevices'] > 0:
             for i in range(self.config['numberOfDevices']):                
                 index = i + 1
@@ -78,25 +101,41 @@ class dataHandler():
 
 
     def createCsvData(self):
-        blob = []
+        '''
+        Loops through the config['filePaths'] and loads each csv into the
+        csvData object.
+        '''
+        csvData = []
         for i in range(len(self.config['filePaths'])):
-            df = pd.read_csv(self.config['filePaths'][i])        
-            blob.append(df)      
-        self.blob = blob
+            try:
+                df = pd.read_csv(self.config['filePaths'][i])        
+                csvData.append(df) 
+            except:
+                print(f"Failed to load {self.config['filePaths'][i]}.")
+                sys.exit("Terminating program")     
+        self.csvData = csvData
 
 
-    def getCsvSpecificRows(self):                           
+    def getCsvSpecificRows(self):  
+        '''
+        Pulls specific rows for each "device" of data out of the csvData object
+        based on the offset variable. If the numberOfDevices is greater than 
+        the number of devices loaded into the csvData object it will rotate and 
+        reuse the existing devices. If the offset called for is longer than the
+        device's stored readings it will rotate back to the start of the 
+        readings.
+        '''                         
         if self.config['numberOfDevices'] > 0:
             for i in range(self.config['numberOfDevices']):                
                 index = i
-                lengthDevices = len(self.blob)
+                lengthDevices = len(self.csvData)
                 if index > lengthDevices-1:
                     index =  i % lengthDevices                                 
-                lengthRow = len(self.blob[index])
+                lengthRow = len(self.csvData[index])
                 offset = self.offset
                 if self.offset > lengthRow-1:
                     offset = self.offset % lengthRow                 
-                singleRow = self.blob[index].iloc[offset].to_dict()
+                singleRow = self.csvData[index].iloc[offset].to_dict()
                 self.rows.append(singleRow) 
 
 
@@ -108,15 +147,20 @@ class dataHandler():
         if self.config['dataMode'] == "flatFile":
             self.createCsvData()
         elif self.config['dataMode'] == "redis":
-            self.createRedisData()
+            self.redisCreateData()
 
 
     def fetchRows(self, offset):
+        '''
+        Takes in the offset and sets the self.offset variable. Then based on
+        what the config['dataMode'] setting is, it will either use the flat
+        files directly, or it will call one of the DB backend functions.
+        '''
         self.offset = offset
         self.rows = []
         if self.config['dataMode'] == "flatFile":
             self.getCsvSpecificRows()
             return self.rows
         elif self.config['dataMode'] == "redis":
-            self.getRedisSpecificRows()
+            self.redisGetSpecificRows()
             return self.rows

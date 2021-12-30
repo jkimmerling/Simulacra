@@ -1,11 +1,17 @@
 import json
+import sys
 import pandas as pd
 from handlers.dataHandler import dataHandler
 from datetime import datetime, timedelta
 
 # load config file
-with open('config.json') as configFile:
-    config = json.load(configFile)
+try:
+    with open('config.json') as configFile:
+        config = json.load(configFile)
+    print("Config file loaded")
+except:
+    print("Failed to load config file")
+    sys.exit("Terminating program")
 
 # Initialize the debug object if debugging is enabled
 if config['debugMode']:
