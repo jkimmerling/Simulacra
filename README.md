@@ -50,7 +50,9 @@ debugMode -
 
 # How to run  
 
-```python3 runner.py
+```
+python3 runner.py
+```
 
  
 # Credits
