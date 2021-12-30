@@ -31,22 +31,22 @@ This is meant to act as a simulator of a device/network of devices. Its primary 
 
 Options in the config.json file
 
-serverMode - 
-useCurrentTime - 
-fileType - 
-dataMode - 
-filePaths - 
-numberOfDevices - 
-numberOfNetworks - 
-postMode - 
-interval - 
-redisHost - 
-redisPort - 
-redisDB - 
-redisInit - 
-flaskHostName - 
-flaskPort - 
-debugMode - 
+serverMode -   
+useCurrentTime -   
+fileType -   
+dataMode -   
+filePaths -   
+numberOfDevices -   
+numberOfNetworks -   
+postMode -   
+interval -   
+redisHost -   
+redisPort -   
+redisDB -   
+redisInit -   
+flaskHostName -   
+flaskPort -   
+debugMode -   
 
  
 # Credits
