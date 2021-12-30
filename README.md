@@ -31,6 +31,7 @@ This is meant to act as a simulator of a device/network of devices. Its primary 
 
 Options in the config.json file
 
+```
 serverMode -   
 useCurrentTime -   
 fileType -   
@@ -47,6 +48,7 @@ redisInit -
 flaskHostName -   
 flaskPort -   
 debugMode -   
+```
 
 # How to run  
 
