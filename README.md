@@ -5,11 +5,12 @@ This is meant to act as a simulator of a device/network of devices. Its primary 
 
 # Current Features  
 * Loads the trend data from CSVs  
-* Configurable to either use the data data directly (best for small data sets), or to use Redis to hold the data  
+* Redis backend support
+* Configurable to either use the data data directly (best for small data sets), or to use backend DB to hold the data
 * Can mimic different data intervals or be set to send new data each call  
 * Can be set to simulate any number of devices  
-* If you data from files, it can rotate through the trends to simulate more devices than the number of files available  
-* If you data from files, it can rotate through the provided trend to simulate more readings than the number of files available  
+* If the data is loaded in from files, it can rotate through the trends to simulate more devices than the number of files available  
+* If the data is loaded in from files,  it can rotate through the provided trend to simulate more readings than the number of files available  
 * Uses a Flask Api to return the readings in JSON format  
 
 # Planned Features  
