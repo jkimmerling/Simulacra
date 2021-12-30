@@ -15,9 +15,9 @@ api = Api(app)
 class BaseTime(Resource):
     count = 0
     timeAtStart = datetime.now()
-    def __init__(self, dataBlob, mainConfig, debugDict, count):
+    def __init__(self, data, mainConfig, debugDict, count):
         self.config = mainConfig
-        self.dataBlob = dataBlob # a list of dictionaries
+        self.data = data 
         self.debugDict = debugDict       
         self.timeAtRun = datetime.now()          
     
@@ -37,7 +37,7 @@ class BaseTime(Resource):
                 self.timeAtStart, self.timeAtRun, self.config['interval'])
         if len(offsetList) > 1:
             BaseTime.count += 1
-        response = self.dataBlob.fetchRows(offsetList[0])
+        response = self.data.fetchRows(offsetList[0])
         response = self.formatTime(response)
         if self.config['debugMode'] == True:
             self.debugDict['offsetList'] = offsetList
