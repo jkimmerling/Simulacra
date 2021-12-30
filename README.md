@@ -21,6 +21,33 @@ This is meant to act as a simulator of a device/network of devices. Its primary 
 * Add MongoDB backend support
 * Ceate docker compose to have everything in one quickly deployable package
 
+# Requirements
+* flask
+* flask_restful
+* redis
+* pandas
+
+# Configuration
+
+Options in the config.json file
+
+serverMode - 
+useCurrentTime - 
+fileType - 
+dataMode - 
+filePaths - 
+numberOfDevices - 
+numberOfNetworks - 
+postMode - 
+interval - 
+redisHost - 
+redisPort - 
+redisDB - 
+redisInit - 
+flaskHostName - 
+flaskPort - 
+debugMode - 
+
  
 # Credits
 Credit for Dataset:  
