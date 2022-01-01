@@ -25,11 +25,11 @@ data.loadData()
 def main():    
     if config['serverMode'] == 'flask':
         count = 0
-        import interfaces.flaskWebApi as fWA                     
-        fWA.api.add_resource(fWA.BaseTime, '/', 
+        import interfaces.flaskInterface as fI                     
+        fI.api.add_resource(fWA.BaseTime, '/', 
             resource_class_kwargs={'mainConfig': config, 'data': data,
             'debugDict': debugDict, 'count': count})
-        fWA.app.run(host=config['hostName'], port=config['port'])
+        fI.app.run(host=config['flaskHostName'], port=config['flaskPort'])
     
 if __name__ == "__main__":
     main()

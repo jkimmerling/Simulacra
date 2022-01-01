@@ -1,18 +1,19 @@
 {
-    "hostName": "localhost",
-    "port": 8080,
     "serverMode": "flask",
     "useCurrentTime": "yes",
     "fileType": "csv",
     "dataMode": "redis",
     "filePaths": ["testCsv-1.csv", "testCsv-2.csv", "testCsv-3.csv"],
-    "postMode": "perCallBased",
-    "interval": 2,
-    "debugMode": true,
     "numberOfDevices": 6,
     "numberOfNetworks": 1,
+    "postMode": "perCallBased",
+    "interval": 2,
     "redisHost": "localhost",
     "redisPort": 6379,
     "redisDB": 1,
-    "redisInit": true
+    "redisInit": true,
+    "flaskHostName": "localhost",
+    "flaskPort": 8080,
+    "debugMode": true
 }
+
