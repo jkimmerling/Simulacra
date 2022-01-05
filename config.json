@@ -3,7 +3,7 @@
     "useCurrentTime": "yes",
     "fileType": "csv",
     "dataMode": "redis",
-    "filePaths": ["data/MZVAV-1.csv"],
+    "filePaths": ["data/MZVAV-1.csv", "data/MZVAV-2-1.csv", "data/MZVAV-2-2.csv"],
     "dataTypeDetection": true,
     "numberOfDevices": 6,
     "numberOfNetworks": 1,
