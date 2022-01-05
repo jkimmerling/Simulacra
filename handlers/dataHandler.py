@@ -11,6 +11,25 @@ class dataHandler():
         self.config = config
         self.lengthRow = []
         self.lengthDevices = []
+
+
+    def findObjectType(self, data):
+        '''
+        Find datatypes using both the dataframe auto typing along
+        with comparator operators. Renames the columns of the dataframe based
+        on the determined type.
+        '''
+        df = data
+        print("Starting dataype detection.")
+        for i in range(1,len(df.columns)):
+            if df.dtypes[df.columns[i]] == "float64":
+                df = df.rename(columns={ df.columns[i]: df.columns[i] + "_AV" })
+            if df.dtypes[df.columns[i]] == "int64" and df[df.columns[i]].max() > 1:
+                df = df.rename(columns={ df.columns[i]: df.columns[i] + "_MSV" })
+            if df.dtypes[df.columns[i]] == "int64" and df[df.columns[i]].max() == 1:
+                df = df.rename(columns={ df.columns[i]: df.columns[i] + "_BV" })
+        print("Finished dataype detection.")
+        return df
         
 
     def redisConnect(self):
@@ -59,13 +78,16 @@ class dataHandler():
                 count = 0
                 print(f"Starting to load " + self.config['filePaths'][n] + ".")
                 try:
-                    with open(self.config['filePaths'][n]) as f:                
-                        for row in csv.DictReader(f, skipinitialspace=True):
-                            data = {k:v for k, v in row.items()} 
-                            redisKeyName = "Device_" + str(n+1) + "_Reading_" \
-                                + str(count+1)       
-                            self.redis.hset(redisKeyName, mapping=data)
-                            count+=1                    
+                    # with open(self.config['filePaths'][n]) as f:
+                       
+                    df = pd.read_csv(self.config['filePaths'][n])
+                    df = self.findObjectType(df)
+                    for i in range(len(df)):
+                        data = df.iloc[i].to_dict() 
+                        redisKeyName = "Device_" + str(n+1) + "_Reading_" \
+                            + str(count+1)       
+                        self.redis.hset(redisKeyName, mapping=data)
+                        count+=1             
                 except:
                     print(f"Failed to load {self.config['filePaths'][n]}.")
                     sys.exit("Terminating program")
@@ -108,7 +130,8 @@ class dataHandler():
         csvData = []
         for i in range(len(self.config['filePaths'])):
             try:
-                df = pd.read_csv(self.config['filePaths'][i])        
+                df = pd.read_csv(self.config['filePaths'][i])
+                df = self.findObjectType(df)        
                 csvData.append(df) 
             except:
                 print(f"Failed to load {self.config['filePaths'][i]}.")

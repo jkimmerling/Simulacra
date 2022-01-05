@@ -26,7 +26,7 @@ def main():
     if config['serverMode'] == 'flask':
         count = 0
         import interfaces.flaskInterface as fI                     
-        fI.api.add_resource(fWA.BaseTime, '/', 
+        fI.api.add_resource(fI.BaseTime, '/', 
             resource_class_kwargs={'mainConfig': config, 'data': data,
             'debugDict': debugDict, 'count': count})
         fI.app.run(host=config['flaskHostName'], port=config['flaskPort'])
