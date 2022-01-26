@@ -50,12 +50,6 @@ class DoSomething(RecurringTask):
 def main(data):
     global test_av, test_bv, test_application
 
-    # make a parser
-    # parser = ConfigArgumentParser(description=__doc__)
-
-    # parse the command line arguments
-    # args = parser.parse_args()
-
     # make a device object
     this_device = LocalDeviceObject(objectIdentifier=599, vendorIdentifier=15, address="10.10.1.109/24")
     address="10.10.1.109/24"
@@ -98,19 +92,7 @@ def main(data):
                 )
                 test_application.add_object(test_msv)
                 msv_point_number += 1
-    # # make an analog value object
-    # test_av = AnalogValueObject(
-    #     objectIdentifier=("analogValue", 1),
-    #     objectName="av",
-    #     presentValue=0.0,
-    #     statusFlags=[0, 0, 0, 0],
-    #     covIncrement=1.0,
-    # )
 
-    # # add it to the device
-    # test_application.add_object(test_av)
-
-    # make a binary value object
     
 
     # binary value task
