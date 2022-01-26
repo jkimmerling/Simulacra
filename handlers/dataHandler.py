@@ -11,6 +11,7 @@ class dataHandler():
         self.config = config
         self.lengthRow = []
         self.lengthDevices = []
+        self.offset = 0
 
 
     def findObjectType(self, data):
@@ -29,6 +30,17 @@ class dataHandler():
             if df.dtypes[df.columns[i]] == "int64" and df[df.columns[i]].max() == 1:
                 df = df.rename(columns={ df.columns[i]: df.columns[i] + "_BV" })
         print("Finished dataype detection.")
+        return df
+
+    def nameFormat(self, data):
+        '''
+        
+        '''
+        df = data
+        print("Starting rename loop.")
+        for i in range(1,len(df.columns)):
+            df = df.rename(columns={ df.columns[i]: df.columns[i].strip().replace(" ", "_").replace(":", "")})            
+        print("Finished rename loop.")
         return df
         
 
@@ -78,10 +90,11 @@ class dataHandler():
                 count = 0
                 print(f"Starting to load " + self.config['filePaths'][n] + ".")
                 try:
-                    # with open(self.config['filePaths'][n]) as f:
-                       
                     df = pd.read_csv(self.config['filePaths'][n])
-                    df = self.findObjectType(df)
+                    if self.config['nameFormatting']:
+                        df = self.nameFormat(df)
+                    if self.config['dataTypeDetection']:
+                        df = self.findObjectType(df)
                     for i in range(len(df)):
                         data = df.iloc[i].to_dict() 
                         redisKeyName = "Device_" + str(n+1) + "_Reading_" \
@@ -99,9 +112,9 @@ class dataHandler():
         else:
             print(f"DB was not empty, and redisInit is false, no new data \
                 loaded")
+        
 
-
-    def redisGetSpecificRows(self):
+    def redisGetSpecificRows(self, offset = 0):
         '''
         Pulls specific rows for each "device" of data out of redis based on 
         the offset variable. If the numberOfDevices is greater than the number 
@@ -114,7 +127,8 @@ class dataHandler():
                 index = i + 1
                 if index > self.lengthDevices-1:
                     index =  (i % self.lengthDevices) + 1
-                offset = self.offset + 1
+                if offset == 0:
+                    offset = self.offset + 1
                 if self.offset > self.lengthRow[index-1]-1:
                     offset = (self.offset % self.lengthRow[index-1]) + 1
                 singleRow = self.redis.hgetall("Device_" + str(index) + \
@@ -131,7 +145,10 @@ class dataHandler():
         for i in range(len(self.config['filePaths'])):
             try:
                 df = pd.read_csv(self.config['filePaths'][i])
-                df = self.findObjectType(df)        
+                if self.config['nameFormatting']:
+                    df = self.nameFormat(df)
+                if self.config['dataTypeDetection']:
+                    df = self.findObjectType(df)                    
                 csvData.append(df) 
             except:
                 print(f"Failed to load {self.config['filePaths'][i]}.")
@@ -139,7 +156,7 @@ class dataHandler():
         self.csvData = csvData
 
 
-    def getCsvSpecificRows(self):  
+    def getCsvSpecificRows(self, offset = 0):  
         '''
         Pulls specific rows for each "device" of data out of the csvData object
         based on the offset variable. If the numberOfDevices is greater than 
@@ -155,7 +172,8 @@ class dataHandler():
                 if index > lengthDevices-1:
                     index =  i % lengthDevices                                 
                 lengthRow = len(self.csvData[index])
-                offset = self.offset
+                if offset == 0:
+                    offset = self.offset
                 if self.offset > lengthRow-1:
                     offset = self.offset % lengthRow                 
                 singleRow = self.csvData[index].iloc[offset].to_dict()
@@ -187,3 +205,13 @@ class dataHandler():
         elif self.config['dataMode'] == "redis":
             self.redisGetSpecificRows()
             return self.rows
+
+
+    def fetchColumnNames(self):  
+        key_list = []
+        self.fetchRows(0)
+        for i in range(len(self.rows)):
+            key_list.append(list(self.rows[i].keys()))
+        return key_list
+
+        
