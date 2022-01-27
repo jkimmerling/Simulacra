@@ -10,6 +10,7 @@ from bacpypes.local.device import LocalDeviceObject
 from bacpypes.service.cov import ChangeOfValueServices
 from bacpypes.service.object import ReadWritePropertyMultipleServices
 
+from datetime import datetime
 import handlers.dataHandler as dh
 import handlers.timeHandler as th
 
@@ -21,86 +22,98 @@ import handlers.timeHandler as th
 INTERVAL = 10
 
 class DoSomething(RecurringTask):
-    def __init__(self, interval):
+    count = 0
+    timeAtStart = datetime.now()
+    def __init__(self, interval, bacnet_points_list, data, config):
         RecurringTask.__init__(self, interval * 1000)
 
         # save the interval
-        self.interval = interval
+        self.interval = config['interval']
+        self.bacnet_points_list = bacnet_points_list
+        self.data = data
+        self.config = config
+        self.timeAtRun = datetime.now()    
+        
+    def process_values(self, output):
+        value_list = []
+        for index in range(len(output)):
+            output[index].pop('Datetime', None)
+            for k, v in output[index].items():
+                value_list.append(v)
+        return value_list
 
-        # make a list of test values
-        self.test_values = [
-            ("active", 1.0),
-            ("inactive", 2.0),
-            ("active", 3.0),
-            ("inactive", 4.0),
-        ]
+    def update_point_values(self, bacnet_points_list, list_of_point_values):
+        for index in range(len(bacnet_points_list)):
+            if bacnet_points_list[index].objectName[-2:] == "AV":
+                bacnet_points_list[index].presentValue = float(list_of_point_values[index])
+            elif bacnet_points_list[index].objectName[-2:] == "BV":
+                if int(list_of_point_values[index]) == 1:
+                    bacnet_points_list[index].presentValue = 'active'
+                else:
+                    bacnet_points_list[index].presentValue = 'inactive'
+            elif bacnet_points_list[index].objectName[-3:] == "MSV":
+                bacnet_points_list[index].presentValue = int(list_of_point_values[index])
 
     def process_task(self):
-        global test_av, test_bv
+        if self.config['postMode'] == 'intervalBased':
+            self.timeAtRun = datetime.now().replace(second=0, microsecond=0)
+        offsetList = th.getOffset(self.config['postMode'], DoSomething.count, 
+                self.timeAtStart, self.timeAtRun, self.config['interval'])
+        if len(offsetList) > 1:
+            DoSomething.count += 1
+        raw_point_values = self.data.fetchRows(offsetList[0])  
+        list_of_point_values = self.process_values(raw_point_values)
+        self.update_point_values(self.bacnet_points_list, list_of_point_values)
 
-        # pop the next value
-        next_value = self.test_values.pop(0)
-        self.test_values.append(next_value)
 
-        # change the point
-        test_av.presentValue = next_value[1]
-        test_bv.presentValue = next_value[0]
+def main(data, config):
 
-
-def main(data):
-    global test_av, test_bv, test_application
-
-    # make a device object
-    this_device = LocalDeviceObject(objectIdentifier=599, vendorIdentifier=15, address="10.10.1.109/24")
-    address="10.10.1.109/24"
-    # make a sample application
+    address=config['bacnetBindAddress']
+    
+    this_device = LocalDeviceObject(objectIdentifier=599, vendorIdentifier=15, address=address)
+    
+    
     test_application = BIPSimpleApplication(this_device, address)
 
     point_list = data.fetchColumnNames()
     av_point_number = 1
     bv_point_number = 1
     msv_point_number = 1
+    bacnet_point_list = []
     for device in range(len(point_list)):
         for point in range(1, len(point_list[device])):
             if point_list[device][point][-2:] == "AV":
-                test_av = AnalogValueObject(
+                bacnet_point_list.append(AnalogValueObject(
                     objectIdentifier=("analogValue", av_point_number),
                     objectName= str(device + 1) + "_" + point_list[device][point],
                     presentValue=0.0,
                     statusFlags=[0, 0, 0, 0],
                     covIncrement=1.0,
-                )
-                # add it to the device
-                test_application.add_object(test_av)
+                ))
+                test_application.add_object(bacnet_point_list[-1])
                 av_point_number += 1
             elif point_list[device][point][-2:] == "BV":
-                test_bv = BinaryValueObject(
+                bacnet_point_list.append(BinaryValueObject(
                     objectIdentifier=("binaryValue", bv_point_number),
                     objectName=str(device + 1) + "_" + point_list[device][point],
                     presentValue="inactive",
                     statusFlags=[0, 0, 0, 0],
-                )   
-                # add it to the device
-                test_application.add_object(test_bv)
+                ))
+                test_application.add_object(bacnet_point_list[-1])
                 bv_point_number += 1
             elif point_list[device][point][-3:] == "MSV":
-                test_msv = MultiStateValueObject(
+                bacnet_point_list.append(MultiStateValueObject(
                     objectIdentifier=("multiStateValue", msv_point_number),
                     objectName=str(device + 1) + "_" + point_list[device][point],
                     presentValue=1,
                     statusFlags=[0, 0, 0, 0],
-                )
-                test_application.add_object(test_msv)
+                ))
+                test_application.add_object(bacnet_point_list[-1])
                 msv_point_number += 1
 
     
 
-    # binary value task
-    do_something_task = DoSomething(INTERVAL)
+    do_something_task = DoSomething(INTERVAL, bacnet_point_list, data, config)
     do_something_task.install_task()
 
     run()
-
-
-# if __name__ == "__main__":
-#     main()

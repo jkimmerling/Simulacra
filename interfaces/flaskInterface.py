@@ -1,7 +1,7 @@
 import csv
 import json
 import os, psutil
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
 import handlers.dataHandler as dh

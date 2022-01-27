@@ -108,7 +108,7 @@ class dataHandler():
                 print(f"Number of Rows loaded: {count}")
                 print(f"Finished Loading {self.config['filePaths'][n]}.")
             self.lengthDevices = len(self.config['filePaths'])
-            print(f"Number of devices loaded: {self.lengthDevices}")
+            print(f"Number of files loaded: {self.lengthDevices}")
         else:
             print(f"DB was not empty, and redisInit is false, no new data \
                 loaded")

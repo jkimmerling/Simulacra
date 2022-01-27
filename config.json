@@ -6,7 +6,7 @@
     "filePaths": ["data/MZVAV-2-1.csv", "data/MZVAV-2-2.csv"],
     "dataTypeDetection": true,
     "nameFormatting": true,
-    "numberOfDevices": 3,
+    "numberOfDevices": 15,
     "numberOfNetworks": 1,
     "postMode": "perCallBased",
     "interval": 2,
@@ -16,6 +16,7 @@
     "redisInit": true,
     "flaskHostName": "localhost",
     "flaskPort": 8080,
-    "debugMode": true
+    "debugMode": true,
+    "bacnetBindAddress": "10.10.1.109/24"
 }
 

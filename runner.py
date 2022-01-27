@@ -30,10 +30,9 @@ def main():
             resource_class_kwargs={'mainConfig': config, 'data': data,
             'debugDict': debugDict, 'count': count})
         fI.app.run(host=config['flaskHostName'], port=config['flaskPort'])
-    if config['serverMode'] == 'bacnet':
-        count = 0
+    if config['serverMode'] == 'bacnet':        
         import interfaces.bacnetInterface as bI                     
-        bI.main(data)
+        bI.main(data, config)
     
 if __name__ == "__main__":
     main()
