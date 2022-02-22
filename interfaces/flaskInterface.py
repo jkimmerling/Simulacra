@@ -38,7 +38,7 @@ class BaseTime(Resource):
         if len(offsetList) > 1:
             BaseTime.count += 1
         response = self.data.fetchRows(offsetList[0])
-        print(self.data.fetchColmnNames())
+        print(self.data.fetchColumnNames())
         response = self.formatTime(response)
         if self.config['debugMode'] == True:
             self.debugDict['offsetList'] = offsetList
